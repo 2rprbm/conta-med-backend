@@ -13,6 +13,26 @@
 
 Este projeto implementa um backend para chatbot do WhatsApp que permite interações automatizadas com clientes da ContaMed. O sistema utiliza a API do WhatsApp Cloud e armazena as conversas em um banco de dados MongoDB.
 
+## 📝 Status do Projeto
+
+### Sprints Concluídas
+
+#### ✅ Sprint 1: Configuração Inicial
+- Estrutura do projeto em arquitetura hexagonal
+- Configuração inicial (logger, config, servidor HTTP)
+- Integração com ambiente de desenvolvimento
+
+#### ✅ Sprint 2: Core do Chatbot
+- Domínio do chatbot (mensagens, conversações, estados)
+- Portas e adaptadores para serviços e repositórios
+- Implementação da lógica de fluxo de conversação
+- Handler de webhook para integração com WhatsApp
+
+#### 🔄 Sprint 3: Repositórios e Persistência (Em andamento)
+- Implementação dos repositórios MongoDB
+- Armazenamento e recuperação de conversas
+- Testes de integração
+
 ## ✨ Funcionalidades
 
 - 💬 Resposta automática a mensagens do WhatsApp
@@ -87,6 +107,8 @@ WHATSAPP_APP_SECRET=your_app_secret
 WHATSAPP_ACCESS_TOKEN=your_access_token
 WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
 WHATSAPP_WEBHOOK_VERIFY_TOKEN=your_custom_webhook_verify_token
+WHATSAPP_API_VERSION=v17.0
+WHATSAPP_BASE_URL=https://graph.facebook.com
 
 # Logging Configuration
 LOG_LEVEL=debug
