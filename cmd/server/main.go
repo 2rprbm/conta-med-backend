@@ -65,7 +65,7 @@ func main() {
 
 	// Shutdown server
 	if err := server.Shutdown(ctx); err != nil {
-		log.Error("Server shutdown error: %v", err)
+		log.Error("Server shutdown error", logger.Fields{"error": err.Error()})
 	}
 
 	log.Info("Server stopped")

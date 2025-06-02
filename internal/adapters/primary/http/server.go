@@ -88,10 +88,14 @@ func (s *Server) setupRoutes() {
 
 // Start starts the HTTP server
 func (s *Server) Start() {
-	s.logger.Info("Starting server on port %s", s.config.Server.Port)
+	s.logger.Info("Starting server", logger.Fields{
+		"port": s.config.Server.Port,
+	})
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			s.logger.Fatal("Server error: %v", err)
+			s.logger.Fatal("Server error", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}()
 }

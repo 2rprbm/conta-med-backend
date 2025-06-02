@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/2rprbm/conta-med-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,24 +23,28 @@ func newMockLogger() *mockLogger {
 	return ml
 }
 
-func (m *mockLogger) Debug(format string, args ...interface{}) {
-	m.logger.Printf(format, args...)
+func (m *mockLogger) Debug(msg string, fields ...logger.Fields) {
+	m.logger.Printf("%s %v", msg, fields)
 }
 
-func (m *mockLogger) Info(format string, args ...interface{}) {
-	m.logger.Printf(format, args...)
+func (m *mockLogger) Info(msg string, fields ...logger.Fields) {
+	m.logger.Printf("%s %v", msg, fields)
 }
 
-func (m *mockLogger) Warn(format string, args ...interface{}) {
-	m.logger.Printf(format, args...)
+func (m *mockLogger) Warn(msg string, fields ...logger.Fields) {
+	m.logger.Printf("%s %v", msg, fields)
 }
 
-func (m *mockLogger) Error(format string, args ...interface{}) {
-	m.logger.Printf(format, args...)
+func (m *mockLogger) Error(msg string, fields ...logger.Fields) {
+	m.logger.Printf("%s %v", msg, fields)
 }
 
-func (m *mockLogger) Fatal(format string, args ...interface{}) {
-	m.logger.Printf(format, args...)
+func (m *mockLogger) Fatal(msg string, fields ...logger.Fields) {
+	m.logger.Printf("%s %v", msg, fields)
+}
+
+func (m *mockLogger) With(fields logger.Fields) logger.Logger {
+	return m
 }
 
 func (m *mockLogger) String() string {

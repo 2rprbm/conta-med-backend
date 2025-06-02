@@ -34,7 +34,10 @@ func (h *WebhookHandler) VerifyToken(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("hub.verify_token")
 	challenge := r.URL.Query().Get("hub.challenge")
 
-	h.logger.Debug("Received webhook verification request: mode=%s, token=%s", mode, token)
+	h.logger.Debug("Received webhook verification request", logger.Fields{
+		"mode":  mode,
+		"token": token,
+	})
 
 	// Check mode and token
 	if mode == "subscribe" && token == h.config.WhatsApp.WebhookVerifyToken {
@@ -88,7 +91,9 @@ func (h *WebhookHandler) ReceiveWebhook(w http.ResponseWriter, r *http.Request) 
 	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		h.logger.Error("Error reading request body: %v", err)
+		h.logger.Error("Error reading request body", logger.Fields{
+			"error": err.Error(),
+		})
 		http.Error(w, "Error reading request", http.StatusBadRequest)
 		return
 	}
@@ -96,14 +101,18 @@ func (h *WebhookHandler) ReceiveWebhook(w http.ResponseWriter, r *http.Request) 
 	// Parse payload
 	var payload WebhookPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		h.logger.Error("Error parsing webhook payload: %v", err)
+		h.logger.Error("Error parsing webhook payload", logger.Fields{
+			"error": err.Error(),
+		})
 		http.Error(w, "Error parsing payload", http.StatusBadRequest)
 		return
 	}
 
 	// Validate payload
 	if payload.Object != "whatsapp_business_account" {
-		h.logger.Warn("Received non-WhatsApp webhook: %s", payload.Object)
+		h.logger.Warn("Received non-WhatsApp webhook", logger.Fields{
+			"object": payload.Object,
+		})
 		http.Error(w, "Unexpected webhook object", http.StatusBadRequest)
 		return
 	}
@@ -114,7 +123,10 @@ func (h *WebhookHandler) ReceiveWebhook(w http.ResponseWriter, r *http.Request) 
 			if change.Field == "messages" {
 				for _, message := range change.Value.Messages {
 					if message.Type == "text" {
-						h.logger.Info("Received message from %s: %s", message.From, message.Text.Body)
+						h.logger.Info("Received message", logger.Fields{
+							"from":    message.From,
+							"message": message.Text.Body,
+						})
 						// TODO: Process message and send response via WhatsApp API
 					}
 				}
