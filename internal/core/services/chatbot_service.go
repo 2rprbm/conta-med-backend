@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/core/domain"
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/core/ports"
-	"github.com/Contabilidade-Medicos/conta-med-backend/pkg/logger"
+	"github.com/2rprbm/conta-med-backend/internal/core/domain"
+	"github.com/2rprbm/conta-med-backend/internal/core/ports"
+	"github.com/2rprbm/conta-med-backend/pkg/logger"
 )
 
 type chatbotService struct {

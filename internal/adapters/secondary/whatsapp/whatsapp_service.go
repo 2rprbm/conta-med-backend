@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/core/ports"
-	"github.com/Contabilidade-Medicos/conta-med-backend/pkg/logger"
+	"github.com/2rprbm/conta-med-backend/internal/core/ports"
+	"github.com/2rprbm/conta-med-backend/pkg/logger"
 )
 
 // WhatsAppConfig holds the configuration for the WhatsApp service

@@ -7,13 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Contabilidade-Medicos/conta-med-backend/config"
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/adapters/primary/api"
-	httpserver "github.com/Contabilidade-Medicos/conta-med-backend/internal/adapters/primary/http"
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/adapters/secondary/whatsapp"
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/core/domain"
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/core/services"
-	"github.com/Contabilidade-Medicos/conta-med-backend/pkg/logger"
+	"github.com/2rprbm/conta-med-backend/config"
+	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/api"
+	httpserver "github.com/2rprbm/conta-med-backend/internal/adapters/primary/http"
+	"github.com/2rprbm/conta-med-backend/internal/adapters/secondary/whatsapp"
+	"github.com/2rprbm/conta-med-backend/internal/core/domain"
+	"github.com/2rprbm/conta-med-backend/internal/core/services"
+	"github.com/2rprbm/conta-med-backend/pkg/logger"
 )
 
 func main() {

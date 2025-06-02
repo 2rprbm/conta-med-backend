@@ -3,7 +3,7 @@ package ports
 import (
 	"context"
 
-	"github.com/Contabilidade-Medicos/conta-med-backend/internal/core/domain"
+	"github.com/2rprbm/conta-med-backend/internal/core/domain"
 )
 
 // MessageRepository defines the interface for message storage operations
