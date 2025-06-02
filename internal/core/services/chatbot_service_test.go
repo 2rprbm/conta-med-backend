@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/2rprbm/conta-med-backend/internal/core/domain"
-	"github.com/2rprbm/conta-med-backend/internal/core/ports"
 	"github.com/2rprbm/conta-med-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

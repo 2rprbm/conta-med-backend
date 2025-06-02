@@ -7,13 +7,17 @@ import (
 	"time"
 )
 
+// Fields represents a map of field names to values
+type Fields map[string]interface{}
+
 // Logger interface defines methods for logging at different levels
 type Logger interface {
-	Debug(format string, args ...interface{})
-	Info(format string, args ...interface{})
-	Warn(format string, args ...interface{})
-	Error(format string, args ...interface{})
-	Fatal(format string, args ...interface{})
+	Debug(msg string, fields ...Fields)
+	Info(msg string, fields ...Fields)
+	Warn(msg string, fields ...Fields)
+	Error(msg string, fields ...Fields)
+	Fatal(msg string, fields ...Fields)
+	With(fields Fields) Logger
 }
 
 // Level represents the logging level
@@ -44,6 +48,7 @@ var levelNames = map[Level]string{
 type LoggerImpl struct {
 	level  Level
 	logger *log.Logger
+	fields Fields
 }
 
 // New creates a new logger with the specified level
@@ -51,6 +56,7 @@ func New(level string) Logger {
 	l := &LoggerImpl{
 		level:  parseLevel(level),
 		logger: log.New(os.Stdout, "", 0),
+		fields: make(Fields),
 	}
 	return l
 }
@@ -73,38 +79,99 @@ func parseLevel(level string) Level {
 	}
 }
 
+// formatFields formats fields as a string
+func formatFields(fields Fields) string {
+	if len(fields) == 0 {
+		return ""
+	}
+
+	result := "{"
+	first := true
+	for k, v := range fields {
+		if !first {
+			result += ", "
+		}
+		first = false
+		result += fmt.Sprintf("%s: %v", k, v)
+	}
+	result += "}"
+	return result
+}
+
+// mergeFields merges multiple Fields objects
+func mergeFields(fieldsList ...Fields) Fields {
+	result := make(Fields)
+	
+	// Add base fields
+	for k, v := range fieldsList[0] {
+		result[k] = v
+	}
+	
+	// Add additional fields
+	if len(fieldsList) > 1 {
+		for _, fields := range fieldsList[1:] {
+			for k, v := range fields {
+				result[k] = v
+			}
+		}
+	}
+	
+	return result
+}
+
 // log logs a message with the specified level
-func (l *LoggerImpl) log(level Level, format string, args ...interface{}) {
+func (l *LoggerImpl) log(level Level, msg string, fields ...Fields) {
 	if level < l.level {
 		return
 	}
 
+	// Merge instance fields with the provided fields
+	mergedFields := l.fields
+	if len(fields) > 0 {
+		mergedFields = mergeFields(l.fields, fields[0])
+	}
+
+	fieldsStr := formatFields(mergedFields)
 	prefix := fmt.Sprintf("[%s] [%s] ", levelNames[level], time.Now().Format("2006-01-02 15:04:05"))
-	l.logger.Printf(prefix+format, args...)
+	if fieldsStr != "" {
+		l.logger.Printf("%s%s %s", prefix, msg, fieldsStr)
+	} else {
+		l.logger.Printf("%s%s", prefix, msg)
+	}
+}
+
+// With returns a new logger with the specified fields added
+func (l *LoggerImpl) With(fields Fields) Logger {
+	newLogger := &LoggerImpl{
+		level:  l.level,
+		logger: l.logger,
+		fields: mergeFields(l.fields, fields),
+	}
+	return newLogger
 }
 
 // Debug logs a debug message
-func (l *LoggerImpl) Debug(format string, args ...interface{}) {
-	l.log(DEBUG, format, args...)
+func (l *LoggerImpl) Debug(msg string, fields ...Fields) {
+	l.log(DEBUG, msg, fields...)
 }
 
 // Info logs an info message
-func (l *LoggerImpl) Info(format string, args ...interface{}) {
-	l.log(INFO, format, args...)
+func (l *LoggerImpl) Info(msg string, fields ...Fields) {
+	l.log(INFO, msg, fields...)
 }
 
 // Warn logs a warning message
-func (l *LoggerImpl) Warn(format string, args ...interface{}) {
-	l.log(WARN, format, args...)
+func (l *LoggerImpl) Warn(msg string, fields ...Fields) {
+	l.log(WARN, msg, fields...)
 }
 
 // Error logs an error message
-func (l *LoggerImpl) Error(format string, args ...interface{}) {
-	l.log(ERROR, format, args...)
+func (l *LoggerImpl) Error(msg string, fields ...Fields) {
+	l.log(ERROR, msg, fields...)
 }
 
 // Fatal logs a fatal message and exits
-func (l *LoggerImpl) Fatal(format string, args ...interface{}) {
-	l.log(FATAL, format, args...)
+func (l *LoggerImpl) Fatal(msg string, fields ...Fields) {
+	l.log(FATAL, msg, fields...)
 	os.Exit(1)
 }
