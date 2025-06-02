@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/2rprbm/conta-med-backend/config"
+	"github.com/2rprbm/conta-med-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,24 +30,28 @@ func newMockLogger() *mockLogger {
 	}
 }
 
-func (m *mockLogger) Debug(format string, args ...interface{}) {
-	m.debugMessages = append(m.debugMessages, format)
+func (m *mockLogger) Debug(msg string, fields ...logger.Fields) {
+	m.debugMessages = append(m.debugMessages, msg)
 }
 
-func (m *mockLogger) Info(format string, args ...interface{}) {
-	m.infoMessages = append(m.infoMessages, format)
+func (m *mockLogger) Info(msg string, fields ...logger.Fields) {
+	m.infoMessages = append(m.infoMessages, msg)
 }
 
-func (m *mockLogger) Warn(format string, args ...interface{}) {
-	m.warnMessages = append(m.warnMessages, format)
+func (m *mockLogger) Warn(msg string, fields ...logger.Fields) {
+	m.warnMessages = append(m.warnMessages, msg)
 }
 
-func (m *mockLogger) Error(format string, args ...interface{}) {
-	m.errorMessages = append(m.errorMessages, format)
+func (m *mockLogger) Error(msg string, fields ...logger.Fields) {
+	m.errorMessages = append(m.errorMessages, msg)
 }
 
-func (m *mockLogger) Fatal(format string, args ...interface{}) {
-	m.fatalMessages = append(m.fatalMessages, format)
+func (m *mockLogger) Fatal(msg string, fields ...logger.Fields) {
+	m.fatalMessages = append(m.fatalMessages, msg)
+}
+
+func (m *mockLogger) With(fields logger.Fields) logger.Logger {
+	return m
 }
 
 func TestSendTextMessage(t *testing.T) {
