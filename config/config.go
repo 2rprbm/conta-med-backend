@@ -41,6 +41,8 @@ type WhatsAppConfig struct {
 	AccessToken        string
 	PhoneNumberID      string
 	WebhookVerifyToken string
+	APIVersion         string
+	BaseURL            string
 }
 
 // LoggingConfig holds logging configuration
@@ -75,6 +77,8 @@ func LoadConfig() (*Config, error) {
 			AccessToken:        getEnv("WHATSAPP_ACCESS_TOKEN", ""),
 			PhoneNumberID:      getEnv("WHATSAPP_PHONE_NUMBER_ID", ""),
 			WebhookVerifyToken: getEnv("WHATSAPP_WEBHOOK_VERIFY_TOKEN", ""),
+			APIVersion:         getEnv("WHATSAPP_API_VERSION", "v17.0"),
+			BaseURL:            getEnv("WHATSAPP_BASE_URL", "https://graph.facebook.com"),
 		},
 		Logging: LoggingConfig{
 			Level: getEnv("LOG_LEVEL", "info"),

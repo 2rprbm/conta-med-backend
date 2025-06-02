@@ -5,24 +5,26 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/2rprbm/conta-med-backend/config"
-	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/http/handlers"
-	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/http/middleware"
-	"github.com/2rprbm/conta-med-backend/pkg/logger"
+	"github.com/Contabilidade-Medicos/conta-med-backend/config"
+	"github.com/Contabilidade-Medicos/conta-med-backend/internal/adapters/primary/api"
+	"github.com/Contabilidade-Medicos/conta-med-backend/internal/adapters/primary/http/middleware"
+	"github.com/Contabilidade-Medicos/conta-med-backend/pkg/logger"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 // Server represents the HTTP server
 type Server struct {
-	server *http.Server
-	router *chi.Mux
-	logger logger.Logger
-	config *config.Config
+	server        *http.Server
+	router        *chi.Mux
+	logger        logger.Logger
+	config        *config.Config
+	webhookHandler *api.WebhookHandler
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg *config.Config, log logger.Logger) *Server {
+func NewServer(cfg *config.Config, log logger.Logger, webhookHandler *api.WebhookHandler) *Server {
 	r := chi.NewRouter()
 
 	srv := &Server{
@@ -33,9 +35,10 @@ func NewServer(cfg *config.Config, log logger.Logger) *Server {
 			WriteTimeout: cfg.Server.WriteTimeout,
 			IdleTimeout:  cfg.Server.IdleTimeout,
 		},
-		router: r,
-		logger: log,
-		config: cfg,
+		router:        r,
+		logger:        log,
+		config:        cfg,
+		webhookHandler: webhookHandler,
 	}
 
 	srv.setupMiddleware()
@@ -54,6 +57,16 @@ func (s *Server) setupMiddleware() {
 
 	// Set a timeout value on the request context
 	s.router.Use(chimiddleware.Timeout(60 * time.Second))
+
+	// CORS configuration
+	s.router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
 }
 
 // setupRoutes sets up the routes for the server
@@ -64,16 +77,12 @@ func (s *Server) setupRoutes() {
 		w.Write([]byte("OK"))
 	})
 
-	// Webhook handler
-	webhookHandler := handlers.NewWebhookHandler(s.config, s.logger)
-
-	// WhatsApp webhook routes
-	s.router.Route("/webhook", func(r chi.Router) {
-		// GET for webhook verification
-		r.Get("/whatsapp", webhookHandler.VerifyToken)
-
-		// POST for receiving messages
-		r.Post("/whatsapp", webhookHandler.ReceiveWebhook)
+	// API routes
+	s.router.Route("/api", func(r chi.Router) {
+		r.Route("/v1", func(r chi.Router) {
+			// Register webhook routes
+			s.webhookHandler.RegisterRoutes(r)
+		})
 	})
 }
 
