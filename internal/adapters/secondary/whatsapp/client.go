@@ -13,19 +13,21 @@ import (
 
 // Client represents a WhatsApp API client
 type Client struct {
-	config     *config.Config
-	logger     *logger.Logger
-	httpClient *http.Client
+	Config     *config.Config
+	Logger     logger.Logger
+	HttpClient *http.Client
+	APIURL     string // URL template for API endpoints
 }
 
 // NewClient creates a new WhatsApp API client
-func NewClient(cfg *config.Config, log *logger.Logger) *Client {
+func NewClient(cfg *config.Config, log logger.Logger) *Client {
 	return &Client{
-		config: cfg,
-		logger: log,
-		httpClient: &http.Client{
+		Config: cfg,
+		Logger: log,
+		HttpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
+		APIURL: "https://graph.facebook.com/v18.0/%s/messages",
 	}
 }
 
@@ -42,7 +44,7 @@ type TextMessage struct {
 
 // SendTextMessage sends a text message to a WhatsApp user
 func (c *Client) SendTextMessage(to, message string) error {
-	if c.config.WhatsApp.PhoneNumberID == "" {
+	if c.Config.WhatsApp.PhoneNumberID == "" {
 		return fmt.Errorf("phone number ID not configured")
 	}
 
@@ -62,7 +64,7 @@ func (c *Client) SendTextMessage(to, message string) error {
 	}
 
 	// Create API URL
-	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", c.config.WhatsApp.PhoneNumberID)
+	url := fmt.Sprintf(c.APIURL, c.Config.WhatsApp.PhoneNumberID)
 
 	// Create request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
@@ -72,11 +74,11 @@ func (c *Client) SendTextMessage(to, message string) error {
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.config.WhatsApp.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+c.Config.WhatsApp.AccessToken)
 
 	// Send request
-	c.logger.Debug("Sending WhatsApp message to %s: %s", to, message)
-	resp, err := c.httpClient.Do(req)
+	c.Logger.Debug("Sending WhatsApp message to %s: %s", to, message)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error sending message: %w", err)
 	}
@@ -91,6 +93,6 @@ func (c *Client) SendTextMessage(to, message string) error {
 		return fmt.Errorf("API error: %v", errorResp)
 	}
 
-	c.logger.Info("Message sent successfully to %s", to)
+	c.Logger.Info("Message sent successfully to %s", to)
 	return nil
 }

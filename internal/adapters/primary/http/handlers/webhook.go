@@ -16,11 +16,11 @@ import (
 // WebhookHandler handles WhatsApp webhook requests
 type WebhookHandler struct {
 	config *config.Config
-	logger *logger.Logger
+	logger logger.Logger
 }
 
 // NewWebhookHandler creates a new webhook handler
-func NewWebhookHandler(cfg *config.Config, log *logger.Logger) *WebhookHandler {
+func NewWebhookHandler(cfg *config.Config, log logger.Logger) *WebhookHandler {
 	return &WebhookHandler{
 		config: cfg,
 		logger: log,

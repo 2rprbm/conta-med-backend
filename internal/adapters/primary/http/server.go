@@ -17,12 +17,12 @@ import (
 type Server struct {
 	server *http.Server
 	router *chi.Mux
-	logger *logger.Logger
+	logger logger.Logger
 	config *config.Config
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg *config.Config, log *logger.Logger) *Server {
+func NewServer(cfg *config.Config, log logger.Logger) *Server {
 	r := chi.NewRouter()
 
 	srv := &Server{
