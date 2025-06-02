@@ -21,15 +21,14 @@ func Logger(log logger.Logger) func(next http.Handler) http.Handler {
 			next.ServeHTTP(ww, r)
 
 			// Log the request details
-			log.Info(
-				"%s %s %s %d %s %s",
-				r.Method,
-				r.URL.Path,
-				r.RemoteAddr,
-				ww.Status(),
-				time.Since(start),
-				r.UserAgent(),
-			)
+			log.Info("HTTP Request", logger.Fields{
+				"method":     r.Method,
+				"path":       r.URL.Path,
+				"remote":     r.RemoteAddr,
+				"status":     ww.Status(),
+				"duration":   time.Since(start).String(),
+				"user_agent": r.UserAgent(),
+			})
 		})
 	}
 }

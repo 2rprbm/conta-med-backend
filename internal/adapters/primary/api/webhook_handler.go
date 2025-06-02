@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -142,7 +143,7 @@ func (h *WebhookHandler) processWebhook(payload WhatsAppPayload) {
 				phoneNumber := strings.TrimPrefix(message.From, "+")
 
 				// Process the message
-				if err := h.chatbotService.HandleIncomingMessage(r.Context(), phoneNumber, message.Text.Body); err != nil {
+				if err := h.chatbotService.HandleIncomingMessage(context.Background(), phoneNumber, message.Text.Body); err != nil {
 					h.log.Error("Failed to process message", logger.Fields{
 						"error": err.Error(),
 						"from":  message.From,

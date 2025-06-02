@@ -33,6 +33,7 @@ func TestLoggerLevels(t *testing.T) {
 		logger := &LoggerImpl{
 			level:  INFO,
 			logger: log.New(writer, "", 0),
+			fields: make(Fields),
 		}
 
 		// act & assert
@@ -118,18 +119,71 @@ func TestLogFormatting(t *testing.T) {
 		logger := &LoggerImpl{
 			level:  DEBUG,
 			logger: log.New(writer, "", 0),
+			fields: make(Fields),
 		}
 
 		// act
-		logger.Info("Test message with %s", "parameter")
+		logger.Info("Test message with parameter", Fields{
+			"param": "value",
+		})
 
 		// assert
 		logged := writer.String()
 		assert.Contains(t, logged, "[INFO]")
 		assert.Contains(t, logged, "Test message with parameter")
+		assert.Contains(t, logged, "param: value")
 
 		// Verify date format (YYYY-MM-DD)
 		datePart := strings.Split(logged, " ")[1]
 		assert.Regexp(t, `\[\d{4}-\d{2}-\d{2}`, datePart)
+	})
+}
+
+func TestWithFields(t *testing.T) {
+	t.Run("should add fields to logger", func(t *testing.T) {
+		// arrange
+		writer := &mockWriter{}
+		logger := &LoggerImpl{
+			level:  DEBUG,
+			logger: log.New(writer, "", 0),
+			fields: make(Fields),
+		}
+
+		// act
+		loggerWithFields := logger.With(Fields{
+			"service": "test",
+		})
+		
+		loggerWithFields.Info("Message with fields")
+
+		// assert
+		logged := writer.String()
+		assert.Contains(t, logged, "Message with fields")
+		assert.Contains(t, logged, "service: test")
+	})
+	
+	t.Run("should merge fields when logging with additional fields", func(t *testing.T) {
+		// arrange
+		writer := &mockWriter{}
+		logger := &LoggerImpl{
+			level:  DEBUG,
+			logger: log.New(writer, "", 0),
+			fields: make(Fields),
+		}
+
+		// act
+		loggerWithFields := logger.With(Fields{
+			"service": "test",
+		})
+		
+		loggerWithFields.Info("Message with merged fields", Fields{
+			"request_id": "123",
+		})
+
+		// assert
+		logged := writer.String()
+		assert.Contains(t, logged, "Message with merged fields")
+		assert.Contains(t, logged, "service: test")
+		assert.Contains(t, logged, "request_id: 123")
 	})
 }

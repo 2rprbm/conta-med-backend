@@ -77,7 +77,11 @@ func (c *Client) SendTextMessage(to, message string) error {
 	req.Header.Set("Authorization", "Bearer "+c.Config.WhatsApp.AccessToken)
 
 	// Send request
-	c.Logger.Debug("Sending WhatsApp message to %s: %s", to, message)
+	c.Logger.Debug("Sending WhatsApp message", logger.Fields{
+		"to":      to,
+		"message": message,
+	})
+	
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error sending message: %w", err)
@@ -93,6 +97,8 @@ func (c *Client) SendTextMessage(to, message string) error {
 		return fmt.Errorf("API error: %v", errorResp)
 	}
 
-	c.Logger.Info("Message sent successfully to %s", to)
+	c.Logger.Info("Message sent successfully", logger.Fields{
+		"to": to,
+	})
 	return nil
 }
