@@ -209,10 +209,11 @@ func TestHandleIncomingMessage_NewConversation(t *testing.T) {
 	ctx := context.Background()
 
 	conversation := &domain.Conversation{
-		ID:          "conv-id",
-		PhoneNumber: phoneNumber,
-		Status:      domain.Active,
-		State:       domain.Initial,
+		ID:             "conv-id",
+		PhoneNumber:    phoneNumber,
+		Status:         domain.Active,
+		State:          domain.Initial,
+		UserSelections: make(map[string]string),
 	}
 
 	mockLogger.On("Info", mock.Anything, mock.Anything).Return()
@@ -245,10 +246,11 @@ func TestProcessUserSelection_MainMenu_Option2(t *testing.T) {
 	ctx := context.Background()
 
 	conversation := &domain.Conversation{
-		ID:          "conv-id",
-		PhoneNumber: phoneNumber,
-		Status:      domain.Active,
-		State:       domain.MainMenu,
+		ID:             "conv-id",
+		PhoneNumber:    phoneNumber,
+		Status:         domain.Active,
+		State:          domain.MainMenu,
+		UserSelections: make(map[string]string),
 	}
 
 	mockLogger.On("Info", mock.Anything, mock.Anything).Return()
@@ -282,10 +284,11 @@ func TestProcessUserSelection_MainMenu_InvalidOption(t *testing.T) {
 	ctx := context.Background()
 
 	conversation := &domain.Conversation{
-		ID:          "conv-id",
-		PhoneNumber: phoneNumber,
-		Status:      domain.Active,
-		State:       domain.MainMenu,
+		ID:             "conv-id",
+		PhoneNumber:    phoneNumber,
+		Status:         domain.Active,
+		State:          domain.MainMenu,
+		UserSelections: make(map[string]string),
 	}
 
 	mockLogger.On("Info", mock.Anything, mock.Anything).Return()
