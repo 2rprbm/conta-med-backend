@@ -1,14 +1,8 @@
-# 📱 ContaMed - Chatbot WhatsApp
+# 🤖 ContaMed WhatsApp Chatbot
 
-<div align="center">
-  
-  ![Version](https://img.shields.io/badge/version-0.2.0-blue.svg?cacheSeconds=2592000)
-  ![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go&logoColor=white)
-  ![Coverage](https://img.shields.io/badge/coverage-75%25-yellowgreen)
-  ![License](https://img.shields.io/badge/license-Proprietary-red)
+> **Versão 0.3.0** - Sistema de chatbot inteligente para WhatsApp Business com persistência MongoDB completa
 
-  Sistema de chatbot para WhatsApp da ContaMed, uma plataforma de contabilidade digital para empresas médicas.
-</div>
+Um chatbot avançado para WhatsApp Business desenvolvido em Go, projetado especificamente para empresas de contabilidade médica. O sistema oferece fluxo de conversação inteligente, validações robustas e persistência completa de dados.
 
 ## 🚀 Visão Geral
 
@@ -44,57 +38,49 @@ Este projeto implementa um backend para chatbot do WhatsApp que permite interaç
 
 ## ✨ Funcionalidades
 
-### 💬 Chatbot Inteligente
-- Resposta automática com saudação personalizada por horário
-- Fluxo de conversação com menu de opções dinâmico
-- Validação robusta de entrada do usuário
-- Tratamento de erros com mensagens personalizadas
-- Resumo automático das informações coletadas
+### 🎯 **Core do Chatbot**
+- ✅ **Saudação inteligente** baseada no horário (Bom dia/Boa tarde/Boa noite)
+- ✅ **Fluxo de conversação estruturado** com validações em tempo real
+- ✅ **Menu interativo** com 4 opções principais
+- ✅ **Coleta de informações** para abertura de empresas médicas
+- ✅ **Validação de dados** brasileiros (telefone, estados, municípios)
+- ✅ **Resumo automático** das informações coletadas
 
-### 🔒 Validações Implementadas
-- **Telefones brasileiros**: Móvel e fixo, com/sem código do país
-- **Estados brasileiros**: Siglas (SP, RJ) e nomes completos
-- **Municípios**: Validação de formato e caracteres especiais
-- **Opções de menu**: Validação de escolhas válidas
-- **Normalização automática**: Estados para formato padrão
+### 🗄️ **Persistência de Dados**
+- ✅ **MongoDB integrado** com driver oficial
+- ✅ **Repositórios completos** para mensagens e conversações
+- ✅ **Índices otimizados** para performance
+- ✅ **Health check** com monitoramento de conectividade
+- ✅ **Graceful shutdown** com fechamento adequado de conexões
 
-### 💾 Persistência de Dados
-- Armazenamento completo de conversas e mensagens
-- Busca eficiente por conversações ativas
-- Histórico completo de mensagens ordenado por timestamp
-- Geração automática de IDs únicos
+### 🔍 **Validações Implementadas**
+- ✅ **Telefones brasileiros**: Móvel/fixo com/sem código do país
+- ✅ **Estados**: Siglas (SP, RJ) ou nomes completos com normalização
+- ✅ **Municípios**: Validação de formato e caracteres especiais
+- ✅ **Opções de menu**: Validação rigorosa de entrada do usuário
 
-### 🧪 Qualidade e Testes
-- **75% de cobertura geral** de testes
-- Testes unitários abrangentes
-- Testes de integração com MongoDB
-- Mocks centralizados para facilitar manutenção
+### 🛡️ **Segurança e Qualidade**
+- ✅ **Verificação de webhook** com assinatura HMAC SHA-256
+- ✅ **Testes unitários** abrangentes (76% de cobertura)
+- ✅ **Arquitetura hexagonal** para baixo acoplamento
+- ✅ **Logs estruturados** para debugging e monitoramento
 
 ## 🏗️ Arquitetura
 
-O projeto é estruturado seguindo os princípios da arquitetura hexagonal (ports and adapters) e arquitetura limpa:
-
-- **Domain** 📊 - Entidades de negócio, validações e regras de domínio
-- **Application** ⚙️ - Casos de uso e regras de aplicação
-- **Adapters** 🔄 - Implementa as interfaces de entrada e saída
-  - **Primary Adapters** 📥 - HTTP, CLI (interfaces de entrada)
-  - **Secondary Adapters** 📤 - WhatsApp API, MongoDB (interfaces de saída)
-
-### 📦 Estrutura de Pastas
-
+### **Arquitetura Hexagonal (Clean Architecture)**
 ```
-conta-med-backend/
 ├── cmd/server/             # Ponto de entrada da aplicação
-├── config/                 # Configurações da aplicação
 ├── internal/
 │   ├── core/
-│   │   ├── domain/         # Entidades e validações de negócio
-│   │   ├── ports/          # Interfaces (contratos)
-│   │   └── services/       # Lógica de aplicação
+│   │   ├── domain/         # Entidades e regras de negócio + validações
+│   │   ├── services/       # Lógica de aplicação
+│   │   └── ports/          # Interfaces (contratos)
 │   ├── adapters/
 │   │   ├── primary/        # Adaptadores de entrada (HTTP)
 │   │   └── secondary/      # Adaptadores de saída (MongoDB, WhatsApp)
 ├── pkg/                    # Pacotes utilitários
+│   ├── mongodb/            # Cliente MongoDB centralizado
+│   └── logger/             # Sistema de logging
 └── docs/                   # Documentação Swagger
 ```
 
@@ -110,7 +96,7 @@ conta-med-backend/
 ## 📋 Requisitos
 
 - **Go 1.21** ou superior
-- **MongoDB 4.4** ou superior
+- **MongoDB 4.4** ou superior (ou MongoDB Atlas)
 - **Conta no WhatsApp Business API**
 - **Conexão com internet** para integração WhatsApp
 
@@ -124,8 +110,29 @@ conta-med-backend/
 
 2. **Configure as variáveis de ambiente**
    ```bash
-   cp .env.example .env
-   # Edite o arquivo .env com suas configurações
+   # Crie um arquivo .env na raiz do projeto com:
+   
+   # Server Configuration
+   SERVER_PORT=8080
+   SERVER_HOST=localhost
+   ENV=development
+   
+   # MongoDB Configuration
+   MONGODB_URI=mongodb+srv://2rprbm:2rprbm@cluster0.f4v7rrn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+   MONGODB_DATABASE=medical_scheduler
+   MONGODB_TIMEOUT=10
+   
+   # WhatsApp API Configuration
+   WHATSAPP_APP_ID=679828301875862
+   WHATSAPP_APP_SECRET=dac37016c2ffaf8655344289faf3b39e
+   WHATSAPP_ACCESS_TOKEN=your_access_token
+   WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+   WHATSAPP_WEBHOOK_VERIFY_TOKEN=your_webhook_token
+   WHATSAPP_API_VERSION=v17.0
+   WHATSAPP_BASE_URL=https://graph.facebook.com
+   
+   # Logging Configuration
+   LOG_LEVEL=debug
    ```
 
 3. **Instale as dependências**
@@ -145,29 +152,15 @@ conta-med-backend/
 
 ## 🔐 Variáveis de Ambiente
 
-```bash
-# Server Configuration
-SERVER_PORT=8080
-SERVER_HOST=localhost
-ENV=development
-
-# MongoDB Configuration
-MONGODB_URI=mongodb+srv://2rprbm:2rprbm@cluster0.f4v7rrn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-MONGODB_DATABASE=medical_scheduler
-MONGODB_TIMEOUT=10
-
-# WhatsApp API Configuration
-WHATSAPP_APP_ID=679828301875862
-WHATSAPP_APP_SECRET=dac37016c2ffaf8655344289faf3b39e
-WHATSAPP_ACCESS_TOKEN=your_temporary_token
-WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
-WHATSAPP_WEBHOOK_VERIFY_TOKEN=your_custom_webhook_verify_token
-WHATSAPP_API_VERSION=v17.0
-WHATSAPP_BASE_URL=https://graph.facebook.com
-
-# Logging Configuration
-LOG_LEVEL=debug
-```
+| Variável | Descrição | Exemplo |
+|----------|-----------|---------|
+| `SERVER_PORT` | Porta do servidor | `8080` |
+| `MONGODB_URI` | URI de conexão MongoDB | `mongodb://localhost:27017` |
+| `MONGODB_DATABASE` | Nome do banco de dados | `medical_scheduler` |
+| `WHATSAPP_ACCESS_TOKEN` | Token de acesso WhatsApp | `EAAJqTNxxCpY...` |
+| `WHATSAPP_PHONE_NUMBER_ID` | ID do número WhatsApp | `123456789` |
+| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | Token de verificação | `meu_token_secreto` |
+| `LOG_LEVEL` | Nível de log | `debug`, `info`, `warn`, `error` |
 
 ## 👨‍💻 Desenvolvimento
 
@@ -178,30 +171,54 @@ LOG_LEVEL=debug
 go test ./...
 
 # Com cobertura detalhada
-go test -cover ./...
+go test -coverprofile="coverage.out" ./...
+go tool cover -func="coverage.out"
 
 # Coverage HTML report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
+go tool cover -html="coverage.out"
 ```
 
 ### 📊 Cobertura Atual de Testes
 
-| Módulo | Cobertura | Status |
-|--------|-----------|--------|
-| config | 100.0% | ✅ |
-| handlers | 82.4% | ✅ |
-| middleware | 100.0% | ✅ |
-| mongodb repos | 79.6% | 🟡 |
-| domain | 74.6% | 🟡 |
-| services | 70.5% | 🟡 |
-| logger | 95.7% | ✅ |
-| whatsapp | 37.9% | 🔴 |
+| Módulo | Cobertura | Status | Observações |
+|--------|-----------|--------|-------------|
+| **config** | 100.0% | ✅ | Completo |
+| **handlers** | 76.0% | ✅ | Acima do objetivo |
+| **middleware** | 100.0% | ✅ | Completo |
+| **mongodb repos** | 79.6% | 🟡 | Próximo do objetivo (80%) |
+| **mongodb client** | 39.7% | 🔴 | **Necessita melhoria** |
+| **domain** | 74.6% | 🟡 | Necessita melhoria |
+| **services** | 70.5% | 🟡 | Necessita melhoria |
+| **logger** | 95.7% | ✅ | Excelente |
+| **whatsapp** | 37.9% | 🔴 | **Prioridade para melhoria** |
+| **GERAL** | **76%** | 🟡 | **Objetivo: 80%+** |
 
 ### 📚 Gerando documentação Swagger
 
 ```bash
 swag init -g cmd/server/main.go -o docs
+```
+
+### 🔍 Health Check
+
+```bash
+# Health check detalhado
+curl http://localhost:8080/health
+
+# Ping simples
+curl http://localhost:8080/ping
+```
+
+**Resposta do Health Check:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "services": {
+    "mongodb": "healthy"
+  },
+  "version": "v0.3.0"
+}
 ```
 
 ## 🤖 Fluxo do Chatbot
@@ -231,37 +248,115 @@ O usuário pode escolher entre:
 ### 4. ✅ Finalização
 - Resumo das informações coletadas
 - Confirmação de direcionamento para consultor
-- Armazenamento completo da conversa
 
-### 🔍 Validações Implementadas
+## 🗄️ Estrutura do Banco de Dados
 
-- **Números de telefone**: +5511999999999, 5511999999999, 11999999999
-- **Estados brasileiros**: SP, São Paulo, rj, Rio de Janeiro
-- **Nomes de cidades**: São Paulo, Rio de Janeiro, Belo Horizonte
-- **Opções de menu**: 1, 2, 3, 4 (com trim automático)
+### **Collection: conversations**
+```javascript
+{
+  "_id": ObjectId("..."),
+  "phone_number": "+5511999999999",
+  "status": "active|completed|pending",
+  "state": "initial|main_menu|company_type_selection|...",
+  "started_at": ISODate("..."),
+  "last_updated_at": ISODate("..."),
+  "ended_at": ISODate("..."), // nullable
+  "user_selections": {
+    "main_menu": "2",
+    "crm_selection": "1",
+    "state": "SP",
+    "city": "São Paulo"
+  },
+  "consultant_id": "consultant_123" // opcional
+}
+```
 
-## 🚀 Performance e Escalabilidade
+### **Collection: messages**
+```javascript
+{
+  "_id": ObjectId("..."),
+  "conversation_id": "conv_123",
+  "phone_number": "+5511999999999",
+  "content": "Olá, gostaria de abrir uma empresa",
+  "type": "text|image|document|location",
+  "direction": "inbound|outbound",
+  "timestamp": ISODate("..."),
+  "metadata": {} // opcional
+}
+```
 
-- **Conexões MongoDB** com pool de conexões configurável
-- **Timeouts apropriados** para todas as operações
-- **Logs estruturados** para monitoramento
-- **Validações client-side** para reduzir carga do servidor
-- **Geração eficiente de IDs** usando ObjectID do MongoDB
+### **Índices Criados**
+- **conversations**: `phone_number`, `phone_number + status`, `last_updated_at`
+- **messages**: `conversation_id`, `phone_number`, `timestamp`, `conversation_id + timestamp`
 
-## 📜 Licença
+## 🚀 Deploy
 
-Este projeto é proprietário e confidencial da ContaMed.
+### **Desenvolvimento**
+```bash
+go run cmd/server/main.go
+```
+
+### **Produção**
+```bash
+# Build
+go build -o conta-med-chatbot cmd/server/main.go
+
+# Execute
+./conta-med-chatbot
+```
+
+### **Docker** (Futuro)
+```dockerfile
+FROM golang:1.21-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN go build -o conta-med-chatbot cmd/server/main.go
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/conta-med-chatbot .
+CMD ["./conta-med-chatbot"]
+```
+
+## 📈 Roadmap
+
+### ✅ **v0.3.0 - Atual**
+- Integração MongoDB completa
+- Health check avançado
+- Validações robustas
+- Testes unitários abrangentes
+
+### 🔄 **v0.4.0 - Em Desenvolvimento**
+- Sistema de gerenciamento de atendimento
+- Interface para funcionários
+- Transferência de conversas entre atendentes
+- Notificações em tempo real
+
+### 🔮 **v0.5.0 - Planejado**
+- Cache Redis para performance
+- Métricas e monitoramento
+- Backup automático
+- API REST para integração
 
 ## 🤝 Contribuição
 
-Para contribuir com o projeto:
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-1. Mantenha a cobertura de testes acima de 70%
-2. Siga os padrões de arquitetura hexagonal
-3. Implemente validações adequadas
-4. Adicione testes para novas funcionalidades
-5. Mantenha a documentação atualizada
+## 📄 Licença
 
-## 📞 Contato
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-Para mais informações, entre em contato com a equipe de desenvolvimento da ContaMed. 
+## 📞 Suporte
+
+- **Email**: suporte@contamed.com.br
+- **WhatsApp**: +55 11 99999-9999
+- **Issues**: [GitHub Issues](https://github.com/2rprbm/conta-med-backend/issues)
+
+---
+
+**Desenvolvido com ❤️ pela equipe ContaMed** 

@@ -7,7 +7,9 @@ import (
 
 	"github.com/2rprbm/conta-med-backend/config"
 	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/api"
+	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/http/handlers"
 	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/http/middleware"
+	mongoclient "github.com/2rprbm/conta-med-backend/pkg/mongodb"
 	"github.com/2rprbm/conta-med-backend/pkg/logger"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -16,15 +18,16 @@ import (
 
 // Server represents the HTTP server
 type Server struct {
-	server        *http.Server
-	router        *chi.Mux
-	logger        logger.Logger
-	config        *config.Config
+	server         *http.Server
+	router         *chi.Mux
+	logger         logger.Logger
+	config         *config.Config
 	webhookHandler *api.WebhookHandler
+	healthHandler  *handlers.HealthHandler
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg *config.Config, log logger.Logger, webhookHandler *api.WebhookHandler) *Server {
+func NewServer(cfg *config.Config, log logger.Logger, webhookHandler *api.WebhookHandler, mongoClient *mongoclient.Client) *Server {
 	r := chi.NewRouter()
 
 	srv := &Server{
@@ -35,10 +38,11 @@ func NewServer(cfg *config.Config, log logger.Logger, webhookHandler *api.Webhoo
 			WriteTimeout: cfg.Server.WriteTimeout,
 			IdleTimeout:  cfg.Server.IdleTimeout,
 		},
-		router:        r,
-		logger:        log,
-		config:        cfg,
+		router:         r,
+		logger:         log,
+		config:         cfg,
 		webhookHandler: webhookHandler,
+		healthHandler:  handlers.NewHealthHandler(mongoClient, log),
 	}
 
 	srv.setupMiddleware()
@@ -71,10 +75,13 @@ func (s *Server) setupMiddleware() {
 
 // setupRoutes sets up the routes for the server
 func (s *Server) setupRoutes() {
-	// Health check
-	s.router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+	// Health check with detailed status
+	s.router.Get("/health", s.healthHandler.CheckHealth)
+
+	// Simple health check for load balancers
+	s.router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		w.Write([]byte("pong"))
 	})
 
 	// API routes
