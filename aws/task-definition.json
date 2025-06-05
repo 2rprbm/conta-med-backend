@@ -1,0 +1,95 @@
+{
+  "family": "conta-med-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::323195246434:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::323195246434:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "conta-med-backend",
+      "image": "323195246434.dkr.ecr.us-east-1.amazonaws.com/conta-med-backend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "SERVER_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SERVER_HOST",
+          "value": "0.0.0.0"
+        },
+        {
+          "name": "ENV",
+          "value": "production"
+        },
+        {
+          "name": "MONGODB_DATABASE",
+          "value": "medical_scheduler"
+        },
+        {
+          "name": "MONGODB_TIMEOUT",
+          "value": "10"
+        },
+        {
+          "name": "WHATSAPP_APP_ID",
+          "value": "679828301875862"
+        },
+        {
+          "name": "WHATSAPP_PHONE_NUMBER_ID",
+          "value": "656690044195363"
+        },
+        {
+          "name": "WHATSAPP_API_VERSION",
+          "value": "v17.0"
+        },
+        {
+          "name": "WHATSAPP_BASE_URL",
+          "value": "https://graph.facebook.com"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "info"
+        },
+        {
+          "name": "MONGODB_URI",
+          "value": "mongodb+srv://2rprbm:2rprbm@cluster0.f4v7rrn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        },
+        {
+          "name": "WHATSAPP_APP_SECRET",
+          "value": "dac37016c2ffaf8655344289faf3b39e"
+        },
+        {
+          "name": "WHATSAPP_ACCESS_TOKEN",
+          "value": "EAAJqTNxxCpYBO46leqUWTbTmmXqOQZBBzcvZCS8Q8AGm1XDTGFAGlRQaEdn7Bv2s2kyo9xSZAvGTjNnx7k3mApt49byorxHvrpitmZAxl9ZA2RaIIZB72OYhsqtdGfZBZClTU3Pc2p1IFVVDD7MHkAcD2ermqj2M7C4q9rRkuk1L0GMSMd43hFWIzLWZCd1i6sXLvHwWUNdxvPRBTNYSbzEUrnIOaZASbvgZCW4FNIZD"
+        },
+        {
+          "name": "WHATSAPP_WEBHOOK_VERIFY_TOKEN",
+          "value": "contamed_webhook_2024_secure"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/conta-med-backend",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/ping || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+} 

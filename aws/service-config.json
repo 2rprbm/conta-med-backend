@@ -1,0 +1,19 @@
+{
+  "serviceName": "conta-med-service",
+  "cluster": "conta-med-cluster",
+  "taskDefinition": "conta-med-task:1",
+  "desiredCount": 1,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": [
+        "subnet-091648750fb783d11",
+        "subnet-075a1c2e9fd0f9f8f"
+      ],
+      "securityGroups": [
+        "sg-032d8f3a86b5a9b7c"
+      ],
+      "assignPublicIp": "ENABLED"
+    }
+  }
+} 

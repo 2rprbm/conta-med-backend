@@ -9,8 +9,8 @@ import (
 	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/api"
 	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/http/handlers"
 	"github.com/2rprbm/conta-med-backend/internal/adapters/primary/http/middleware"
-	mongoclient "github.com/2rprbm/conta-med-backend/pkg/mongodb"
 	"github.com/2rprbm/conta-med-backend/pkg/logger"
+	mongoclient "github.com/2rprbm/conta-med-backend/pkg/mongodb"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -84,13 +84,10 @@ func (s *Server) setupRoutes() {
 		w.Write([]byte("pong"))
 	})
 
-	// API routes
-	s.router.Route("/api", func(r chi.Router) {
-		r.Route("/v1", func(r chi.Router) {
-			// Register webhook routes
-			s.webhookHandler.RegisterRoutes(r)
-		})
-	})
+	// WhatsApp webhook routes (directly at root level as per WhatsApp convention)
+	s.webhookHandler.RegisterRoutes(s.router)
+
+	// All future endpoints will be registered directly on the root router
 }
 
 // Start starts the HTTP server

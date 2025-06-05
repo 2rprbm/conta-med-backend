@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -106,7 +107,7 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 	
 	// Index for phone_number (unique)
 	_, err := conversationsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys:    map[string]interface{}{"phone_number": 1},
+		Keys:    bson.D{{"phone_number", 1}},
 		Options: options.Index().SetUnique(false), // Allow multiple conversations per phone
 	})
 	if err != nil {
@@ -115,9 +116,9 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 
 	// Index for phone_number + status for active conversation lookups
 	_, err = conversationsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]interface{}{
-			"phone_number": 1,
-			"status":       1,
+		Keys: bson.D{
+			{"phone_number", 1},
+			{"status", 1},
 		},
 	})
 	if err != nil {
@@ -126,7 +127,7 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 
 	// Index for last_updated_at for sorting
 	_, err = conversationsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]interface{}{"last_updated_at": -1},
+		Keys: bson.D{{"last_updated_at", -1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create last_updated_at index: %w", err)
@@ -137,7 +138,7 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 	
 	// Index for conversation_id
 	_, err = messagesCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]interface{}{"conversation_id": 1},
+		Keys: bson.D{{"conversation_id", 1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create conversation_id index: %w", err)
@@ -145,7 +146,7 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 
 	// Index for phone_number
 	_, err = messagesCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]interface{}{"phone_number": 1},
+		Keys: bson.D{{"phone_number", 1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create phone_number index on messages: %w", err)
@@ -153,7 +154,7 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 
 	// Index for timestamp for sorting messages
 	_, err = messagesCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]interface{}{"timestamp": -1},
+		Keys: bson.D{{"timestamp", -1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create timestamp index: %w", err)
@@ -161,9 +162,9 @@ func (c *Client) CreateIndexes(ctx context.Context) error {
 
 	// Compound index for conversation_id + timestamp for efficient message queries
 	_, err = messagesCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]interface{}{
-			"conversation_id": 1,
-			"timestamp":       -1,
+		Keys: bson.D{
+			{"conversation_id", 1},
+			{"timestamp", -1},
 		},
 	})
 	if err != nil {
