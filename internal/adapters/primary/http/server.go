@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -95,26 +96,54 @@ func (s *Server) setupRoutes() {
 
 	// Adicionando suporte para HEAD em /webhook (handler separado)
 	s.router.Head("/webhook", func(w http.ResponseWriter, r *http.Request) {
+		// Registrar todos os detalhes da requisição para diagnóstico
+		s.logger.Info("DIAGNÓSTICO - Recebida requisição HEAD para /webhook", logger.Fields{
+			"headers":      fmt.Sprintf("%v", r.Header),
+			"remote_addr":  r.RemoteAddr,
+			"url":          r.URL.String(),
+			"query_params": fmt.Sprintf("%v", r.URL.Query()),
+		})
+
 		// Para webhooks, usamos a mesma lógica de verificação do GET
 		mode := r.URL.Query().Get("hub.mode")
 		token := r.URL.Query().Get("hub.verify_token")
 		challenge := r.URL.Query().Get("hub.challenge")
 
 		s.logger.Debug("Received HEAD webhook verification request", logger.Fields{
-			"mode":  mode,
-			"token": token,
+			"mode":      mode,
+			"token":     token,
+			"challenge": challenge,
 		})
+
+		// Adicionando headers CORS específicos para o webhook
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
+		w.Header().Set("Content-Type", "text/plain")
 
 		// Verificação com os mesmos critérios do GET
 		if mode == "subscribe" && token == s.config.WhatsApp.WebhookVerifyToken {
-			s.logger.Info("HEAD webhook verified successfully")
+			s.logger.Info("HEAD webhook verified successfully", logger.Fields{
+				"challenge": challenge,
+				"token":     token,
+			})
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(challenge))
+
+			// Log após enviar a resposta
+			s.logger.Info("DIAGNÓSTICO - Resposta enviada para HEAD webhook", logger.Fields{
+				"status_code":  http.StatusOK,
+				"challenge":    challenge,
+				"content_type": w.Header().Get("Content-Type"),
+			})
 			return
 		}
 
 		// Verificação falhou
-		s.logger.Warn("HEAD webhook verification failed: invalid token or mode")
+		s.logger.Warn("HEAD webhook verification failed: invalid token or mode", logger.Fields{
+			"expected_token": s.config.WhatsApp.WebhookVerifyToken,
+			"received_token": token,
+			"mode":           mode,
+		})
 		http.Error(w, "Verification failed", http.StatusForbidden)
 	})
 

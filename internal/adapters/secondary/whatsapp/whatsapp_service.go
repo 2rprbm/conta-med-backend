@@ -14,11 +14,11 @@ import (
 
 // WhatsAppConfig holds the configuration for the WhatsApp service
 type WhatsAppConfig struct {
-	APIVersion     string
-	PhoneNumberID  string
-	AccessToken    string
-	WebhookToken   string
-	BaseURL        string
+	APIVersion    string
+	PhoneNumberID string
+	AccessToken   string
+	WebhookToken  string
+	BaseURL       string
 }
 
 type whatsAppService struct {
@@ -71,7 +71,7 @@ func (s *whatsAppService) SendOptionsMessage(ctx context.Context, phoneNumber, m
 	// For now, we'll just format the options as bullet points in the text message
 	// In a production environment, you might want to use WhatsApp's interactive messages
 	fullMessage := fmt.Sprintf("%s\n\n%s", message, strings.Join(options, "\n"))
-	
+
 	return s.SendTextMessage(ctx, phoneNumber, fullMessage)
 }
 
@@ -90,6 +90,11 @@ func (s *whatsAppService) VerifyWebhook(mode, token, challenge string) (bool, st
 	return true, challenge
 }
 
+// GetWebhookToken returns the token used for webhook verification
+func (s *whatsAppService) GetWebhookToken() string {
+	return s.config.WebhookToken
+}
+
 // sendMessage handles the actual sending of the message to the WhatsApp API
 func (s *whatsAppService) sendMessage(ctx context.Context, payload map[string]interface{}) error {
 	// Convert payload to JSON
@@ -99,9 +104,9 @@ func (s *whatsAppService) sendMessage(ctx context.Context, payload map[string]in
 	}
 
 	// Prepare the request
-	url := fmt.Sprintf("%s/v%s/%s/messages", 
-		s.config.BaseURL, 
-		s.config.APIVersion, 
+	url := fmt.Sprintf("%s/v%s/%s/messages",
+		s.config.BaseURL,
+		s.config.APIVersion,
 		s.config.PhoneNumberID,
 	)
 
@@ -135,4 +140,4 @@ func (s *whatsAppService) sendMessage(ctx context.Context, payload map[string]in
 	})
 
 	return nil
-} 
+}
