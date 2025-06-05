@@ -95,8 +95,27 @@ func (s *Server) setupRoutes() {
 
 	// Adicionando suporte para HEAD em /webhook (handler separado)
 	s.router.Head("/webhook", func(w http.ResponseWriter, r *http.Request) {
-		// Para webhooks, só precisamos retornar 200 OK em HEAD
-		w.WriteHeader(http.StatusOK)
+		// Para webhooks, usamos a mesma lógica de verificação do GET
+		mode := r.URL.Query().Get("hub.mode")
+		token := r.URL.Query().Get("hub.verify_token")
+		challenge := r.URL.Query().Get("hub.challenge")
+
+		s.logger.Debug("Received HEAD webhook verification request", logger.Fields{
+			"mode":  mode,
+			"token": token,
+		})
+
+		// Verificação com os mesmos critérios do GET
+		if mode == "subscribe" && token == s.config.WhatsApp.WebhookVerifyToken {
+			s.logger.Info("HEAD webhook verified successfully")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(challenge))
+			return
+		}
+
+		// Verificação falhou
+		s.logger.Warn("HEAD webhook verification failed: invalid token or mode")
+		http.Error(w, "Verification failed", http.StatusForbidden)
 	})
 
 	// All future endpoints will be registered directly on the root router
