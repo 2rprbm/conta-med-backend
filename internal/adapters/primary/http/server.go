@@ -65,7 +65,7 @@ func (s *Server) setupMiddleware() {
 	// CORS configuration
 	s.router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
@@ -84,8 +84,20 @@ func (s *Server) setupRoutes() {
 		w.Write([]byte("pong"))
 	})
 
+	// Adicionando suporte para HEAD em /ping
+	s.router.Head("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		// Não precisa escrever o corpo em HEAD
+	})
+
 	// WhatsApp webhook routes (directly at root level as per WhatsApp convention)
 	s.webhookHandler.RegisterRoutes(s.router)
+
+	// Adicionando suporte para HEAD em /webhook (handler separado)
+	s.router.Head("/webhook", func(w http.ResponseWriter, r *http.Request) {
+		// Para webhooks, só precisamos retornar 200 OK em HEAD
+		w.WriteHeader(http.StatusOK)
+	})
 
 	// All future endpoints will be registered directly on the root router
 }
